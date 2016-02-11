@@ -58,9 +58,9 @@ if has "$saying" "StatusBot:" ; then
                 say $chan "$nick: Type \"!busy\" to set yourself to Busy."
                 say $chan "$nick: Type \"StatusBot: <user>\" to look up the status of a specific user."
         elif has "$saying" "StatusBot: Source" ; then
-                say $chan "Synt4x is my creator. I do not currently have public source code."
+                say $chan "$nick: https://github.com/parsim0ny/StatusBot"
         elif has "$saying" "StatusBot: source" ; then
-                say $chan "Synt4x is my creator. I do not currently have public source code."
+                say $chan "$nick: https://github.com/parsim0ny/StatusBot"
         else
                 search="$(echo $saying | cut -f 2 -d ' ')"
                 if grep -i " $search " users.txt ; then
