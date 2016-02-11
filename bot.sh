@@ -51,7 +51,7 @@ tail -f .botfile | openssl s_client -connect irc.cat.pdx.edu:6697 | while true
                 echo $irc >> whois.txt
                 chan=`cat last_message.txt | cut -d ' ' -f 3`
                 if grep "End of /WHOIS list." whois.txt > /dev/null ; then
-                        if grep "No such nick/channel" whois.txt > /dev/null ; then
+                        if grep "No such server" whois.txt > /dev/null ; then
                                 echo ".DOESNOTEXIST." > whois.txt
                         fi
                         if grep ".DOESNOTEXIST." whois.txt > /dev/null ; then
