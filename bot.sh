@@ -48,41 +48,42 @@ tail -f .botfile | openssl s_client -connect irc.cat.pdx.edu:6697 | while true
                         send "$var"
                 fi
         else
-                echo $irc >> whois.txt
+                                echo $irc >> whois.txt
                 chan=`cat last_message.txt | cut -d ' ' -f 3`
-                if grep "End of /WHOIS list." whois.txt > /dev/null ; then
-                        if grep "No such server" whois.txt > /dev/null ; then
-                                echo ".DOESNOTEXIST." > whois.txt
+                search=`cat last_message.txt | cut -d ' ' -f 5`
+                if grep "No such server" whois.txt > /dev/null ; then
+                        echo ".DOESNOTEXIST." > whois.txt
+                fi
+                if grep ".DOESNOTEXIST." whois.txt > /dev/null ; then
+                        send "PRIVMSG $chan :User or command not recognized."
+                        > whois.txt
+                elif grep "End of /WHOIS list." whois.txt > /dev/null ; then
+                        if grep "seconds idle, signon time" whois.txt > /dev/null ; then
+                                if [[ -z $idle ]] ; then
+                                        grep "seconds idle, signon time" whois.txt | cut -d ' ' -f 5 > idle_seconds.txt
+                                        ./timeConvert > idle_time.txt
+                                        idle=`cat idle_time.txt`
+                                fi
                         fi
-                        if grep ".DOESNOTEXIST." whois.txt > /dev/null ; then
-                                send "PRIVMSG $chan :User or command not recognized."
+                        if grep $chan whois.txt > /dev/null ; then
+                                if [[ -z $inchan ]] ; then
+                                        inchan="yes"
+                                fi
+                        fi
+                        if [[ ! -z $idle ]] ; then
+                                send "PRIVMSG $chan :Idle time for user is $idle"
+                                idle=
                         else
-                                if grep "seconds idle, signon time" whois.txt > /dev/null ; then
-                                        if [[ -z $idle ]] ; then
-                                                grep "seconds idle, signon time" whois.txt | cut -d ' ' -f 5 > idle_seconds.txt
-                                                ./timeConvert > idle_time.txt
-                                                idle=`cat idle_time.txt`
-                                        fi
-                                fi
-                                if grep $chan whois.txt > /dev/null ; then
-                                        if [[ -z $inchan ]] ; then
-                                            inchan="yes"
-                                        fi
-                                fi
-                                if [[ ! -z $idle ]] ; then
-                                        send "PRIVMSG $chan :Idle time for user is $idle"
-                                        idle=
-                                else
-                                        send "PRIVMSG $chan :Idle time unavailable for user."
-                                fi
-                                if [[ ! -z $inchan ]] ; then
-                                        send "PRIVMSG $chan :User is in the current channel."
-                                        inchan=
-                                else
-                                        send "PRIVMSG $chan :User is not in the current channel."
-                                fi
+                                send "PRIVMSG $chan :Idle time unavailable for user."
+                        fi
+                        if [[ ! -z $inchan ]] ; then
+                                send "PRIVMSG $chan :User is in the current channel."
+                                inchan=
+                        else
+                                send "PRIVMSG $chan :User is not in the current channel."
                         fi
                         > whois.txt
                 fi
         fi
 done
+
